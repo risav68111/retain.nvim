@@ -1,12 +1,22 @@
-local pickers = require("telescope.pickers")
-local finders = require("telescope.finders")
-local actions = require("telescope.actions")
-local action_state = require("telescope.actions.state")
-local conf = require("telescope.config").values
-local Path = require("plenary.path")
+-- local pickers = require("telescope.pickers")
+-- local finders = require("telescope.finders")
+-- local actions = require("telescope.actions")
+-- local action_state = require("telescope.actions.state")
+-- local conf = require("telescope.config").values
+-- local Path = require("plenary.path")
 local fileDir = require("retain.fileWork")
+local ui = require("retain.ui")
+local opendir = require("retain.opendir")
 
 local M = {}
+
+
+local title = "📁 choose a directory"
+local dirs = fileDir.getList()
+
+function M.run()
+  ui.open(title, dirs, opendir.cdNew)
+end
 
 --[[
 local function get_subdirs(dir)
@@ -21,18 +31,19 @@ local function get_subdirs(dir)
 end
 --]]
 
-local dirs = fileDir.getList()
-
+--[[
+local dirs =vim.tbl_deep_extend("force", fileDir.getList(), opts or {})
 function M.cd_picker(opts)
   opts = opts or {}
-  local cwd = opts.cwd or vim.loop.cwd()
+  -- local cwd = opts.cwd or vim.loop.cwd()
   -- vim.notify("cd_picker")
   -- local dirs = get_subdirs(cwd)
+  local dirs = fileDir.getList()
   fileDir.appen(dirs)
   fileDir.saveCurrDir(dirs)
 
   pickers.new(opts, {
-    prompt_title = "📁 Choose a Directory",
+    prompt_title = "📁 choose a directory",
     finder = finders.new_table {
       results = dirs,
     },
@@ -42,13 +53,15 @@ function M.cd_picker(opts)
         actions.close(prompt_bufnr)
         local selection = action_state.get_selected_entry()
         if selection then
-          vim.cmd("cd " .. selection[1])
-          print("Changed directory to " .. selection[1])
+          -- vim.notify(selection[1])
+          -- vim.cmd("cd " .. vim.fn.fnameescape(selection[1]))
+          vim.notify("Changed directory to " .. selection[1])
         end
       end)
       return true
     end,
   }):find()
 end
+--]]
 
 return M

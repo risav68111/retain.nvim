@@ -42,23 +42,28 @@ end
 function M.getList()
   if not fileExists() then
     createFileAndDirectory()
+    return {}
   end
   local ok, data = pcall(dofile, file_dir)
   local file     = ok and data or {}
   return file
 end
 
--- function M.isThere()
---   for _, val in ipairs(file) do
---     if val == curr_dir then
---       return true
---     end
---   end
---   return false
--- end
+function M.isThere(file,c_dir)
+  for _, val in ipairs(file) do
+    if val == c_dir then
+      return true
+    end
+  end
+  return false
+end
 
 function M.appen(dirs)
-  table.insert(dirs, vim.fn.getcwd())
+  local c_cwd= vim.fn.getcwd()
+  if M.isThere(dirs, c_cwd) then
+    return
+  end
+  table.insert(dirs, c_cwd)
 end
 
 function M.saveCurrDir(file)
@@ -67,6 +72,7 @@ function M.saveCurrDir(file)
     createFileAndDirectory()
     return
   end
+  -- M.appen(file)
   f:write("return {\n")
   for _, val in pairs(file or {}) do
     f:write(string.format(" %q,\n", val))
@@ -74,6 +80,16 @@ function M.saveCurrDir(file)
   f:write("}\n")
   f:write("--Last Line \n")
   f:close()
+end
+
+function  M.delDir(dirs, t_dir)
+  local new_tab= {}
+  for _, val in ipairs(dirs) do
+    if val ~= t_dir then
+      table.insert(new_tab, val)
+    end
+  end
+    M.saveCurrDir(new_tab)
 end
 
 return M
