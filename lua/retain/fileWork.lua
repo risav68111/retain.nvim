@@ -14,7 +14,7 @@ end
 -- local aft_home = isWin() and "AppData\\Local\\nvim-data\\retain-list" or ".config/nvim-data/retain-list"
 -- local file_path = home_dir .. "\\" .. aft_home
 
-local file_path = vim.fn.stdpath("data") .. "/retain-list"
+local file_path = vim.fn.stdpath("data") .. "/retain"
 local file_name = "directory-list.lua"
 local file_dir = file_path .. "\\" .. file_name
 
@@ -84,7 +84,7 @@ function M.saveCurrDir(dirs)
   end
   f:write("return {\n")
   for _, val in pairs(dirs or {}) do
-    f:write(string.format("%q, \n", val))
+    f:write(string.format("%q,\n", val))
   end
   -- vim.notify("writing local file Dirs: ")
   f:write("}\n")
