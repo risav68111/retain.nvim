@@ -4,7 +4,7 @@
 -- local action_state = require("telescope.actions.state")
 -- local conf = require("telescope.config").values
 -- local Path = require("plenary.path")
-local fileDir = require("retain.fileWork")
+local fileDir = require("retain.filework")
 local ui = require("retain.ui")
 local opendir = require("retain.opendir")
 
@@ -13,6 +13,9 @@ local M = {}
 
 local title = "📁 choose a directory"
 local dirs = fileDir.getList()
+
+-- vim.notify("called init.lua retain")
+fileDir.saveCurrDir(dirs)
 
 function M.run()
   ui.open(title, dirs, opendir.cdNew)

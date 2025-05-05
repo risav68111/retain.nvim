@@ -3,7 +3,7 @@ local M = {}
 local home_dir = vim.fn.expand("~")                -- home directory
 local curr_dir = vim.fn.getcwd() or vim.loop.cwd() -- current directory
 
-local function isWin()
+function M.isWin()
   if string.find(home_dir, "C:\\Users\\") then
     return true
   end
@@ -20,18 +20,19 @@ local file_dir = file_path .. "\\" .. file_name
 
 -- print(string.format("%q \n %q \n %q \n %q \n ",  home_dir, aft_home, file_path, file_name))
 
-local function createFileAndDirectory()
+function M.createFileAndDirectory()
   vim.fn.mkdir(file_path, "p")
-  local file = io.open(file_dir, "w")
-  if file then
-    file:write("return {\n")
-    file:write("}\n")
-    file:write("-- lastLine")
-    file:close()
+  local dirs = io.open(file_dir, "w")
+  if dirs then
+    dirs:write("return {\n")
+    dirs:write("%q,\n", vim.fn.getcwd())
+    dirs:write("}\n")
+    dirs:write("-- lastLine")
+    dirs:close()
   end
 end
 
-local function fileExists()
+function M.fileExists()
   local f = io.open(file_dir, "r")
   if f then
     return true
@@ -39,19 +40,9 @@ local function fileExists()
   return false
 end
 
-function M.getList()
-  if not fileExists() then
-    createFileAndDirectory()
-    return {}
-  end
-  local ok, data = pcall(dofile, file_dir)
-  local file     = ok and data or {}
-  return file
-end
-
-function M.isThere(file,c_dir)
-  for _, val in ipairs(file) do
-    if val == c_dir then
+function M.isThere(dirs, c_dir)
+  for _, val in ipairs(dirs) do
+    if string.lower(val) == string.lower(c_dir) then
       return true
     end
   end
@@ -59,37 +50,56 @@ function M.isThere(file,c_dir)
 end
 
 function M.appen(dirs)
-  local c_cwd= vim.fn.getcwd()
+  local c_cwd = vim.fn.getcwd()
+  if dirs == nil then
+    dirs = {}
+  end
   if M.isThere(dirs, c_cwd) then
     return
   end
   table.insert(dirs, c_cwd)
 end
 
-function M.saveCurrDir(file)
+function M.getList()
+  if not M.fileExists() then
+    M.createFileAndDirectory()
+    return {}
+  end
+  local ok, data = pcall(dofile, file_dir)
+  local dirs     = ok and data or {}
+  M.appen(dirs)
+  return dirs
+end
+
+
+function M.saveCurrDir(dirs)
+  -- vim.notify(" saveCurrDir called")
+  if type(dirs) ~= "table" then
+    vim.notify("Invalid Dirs: " .. type(dirs))
+  end
   local f = io.open(file_dir, 'w')
   if not f then
-    createFileAndDirectory()
+    M.createFileAndDirectory()
     return
   end
-  -- M.appen(file)
   f:write("return {\n")
-  for _, val in pairs(file or {}) do
-    f:write(string.format(" %q,\n", val))
+  for _, val in pairs(dirs or {}) do
+    f:write(string.format("%q, \n", val))
   end
+  -- vim.notify("writing local file Dirs: ")
   f:write("}\n")
   f:write("--Last Line \n")
   f:close()
 end
 
-function  M.delDir(dirs, t_dir)
-  local new_tab= {}
+function M.delDir(dirs, dir)
+  local new_table = {}
   for _, val in ipairs(dirs) do
-    if val ~= t_dir then
-      table.insert(new_tab, val)
+    if val ~= dir then
+      table.insert(new_table, val)
     end
   end
-    M.saveCurrDir(new_tab)
+  M.saveCurrDir(new_table)
 end
 
 return M
