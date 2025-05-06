@@ -9,7 +9,7 @@ local Job = require("plenary.job")
 local M = {}
 
 -- Custom previewer to show directory contents
-local function dir_previewer()
+local function dirPreview()
   return previewers.new_buffer_previewer({
     title = "Directory Contents",
     define_preview = function(self, entry, _)
@@ -40,7 +40,7 @@ function M.open(title, items, on_select, opts)
       results = items or {},
     },
     sorter = conf.generic_sorter(opts),
-    previewer = dir_previewer(),
+    previewer = dirPreview(),
     layout_config = {
       horizontal = { preview_width = 0.5 }, -- adjust as needed
     },

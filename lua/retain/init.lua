@@ -4,7 +4,7 @@
 -- local action_state = require("telescope.actions.state")
 -- local conf = require("telescope.config").values
 -- local Path = require("plenary.path")
-local fileDir = require("retain.filework")
+local crud = require("retain.crud")
 local ui = require("retain.ui")
 local opendir = require("retain.opendir")
 
@@ -12,10 +12,10 @@ local M = {}
 
 
 local title = "📁 choose a directory"
-local dirs = fileDir.getList()
+local dirs = crud.getList()
 
 -- vim.notify("called init.lua retain")
-fileDir.saveCurrDir(dirs)
+crud.saveCurrDir(dirs)
 
 function M.run()
   ui.open(title, dirs, opendir.cdNew)
@@ -35,15 +35,15 @@ end
 --]]
 
 --[[
-local dirs =vim.tbl_deep_extend("force", fileDir.getList(), opts or {})
+local dirs =vim.tbl_deep_extend("force", crud.getList(), opts or {})
 function M.cd_picker(opts)
   opts = opts or {}
   -- local cwd = opts.cwd or vim.loop.cwd()
   -- vim.notify("cd_picker")
   -- local dirs = get_subdirs(cwd)
-  local dirs = fileDir.getList()
-  fileDir.appen(dirs)
-  fileDir.saveCurrDir(dirs)
+  local dirs = crud.getList()
+  crud.appen(dirs)
+  crud.saveCurrDir(dirs)
 
   pickers.new(opts, {
     prompt_title = "📁 choose a directory",
